@@ -17,18 +17,19 @@ $ npm install fvg
 ### 2. Setting it up
 
 #### Rename
-Grab your .svg file and change the extension to `.fvg` (**NOTE** if you're on a Mac, double check to make sure it's not `.fvg.svg`)
+Grab your SVG file and change the extension to `.fvg` (**NOTE** if you're on a Mac, double check to make sure it's not `.fvg.svg`)
 
 #### Getting variables(properties) from JSON 
-Open your .fvg file and after the `<svg ... >` tag:
-*input.fvg*
+Open your FVG file and after the `<svg ... >` tag:
+
 ```javascript
+// input.fvg
 ƒ.link{ "path/to/file.json" }
 ```
 (**NOTE** the `ƒ` is a florin sign, `Opt+F` on a Mac)
 
-*file.json*
 ```javascript
+// file.json
 {
 	"some_text": "Valar Morgulis",
 	"a_color": "#819090"
@@ -36,27 +37,29 @@ Open your .fvg file and after the `<svg ... >` tag:
 ```
 
 Referencing that JSON object:
-*input.fvg*
+
 ```xml
+<!-- input.fvg -->
 <rect fill="ƒ{a_color}" width="300" height="200"/>`
 ```
 or
 ```xml
+<!-- input.fvg -->
 <text x="150" y="110" text-anchor="middle" fill="#fefee2" font-size="24">ƒ{some_text}</text>
 ```
 
 #### Embedding SVG XML
-I needed to directly embed external SVG elements (not link the .svg using `<image xlink:href="file.svg"/>`) so I created an echo method which grabs the text of the linked file:
+I needed to directly embed external SVG elements (not link the SVG using `<image xlink:href="file.svg"/>`) so I created an echo method which grabs the text of the linked file:
 
-*input.fvg*
 ```xml
+<!-- input.fvg -->
 <defs>
 	ƒ.echo{ "path/to/file.xml" }
 </defs>
 ```
 
-*file.xml*
 ```xml
+<!-- file.xml -->
 <rect id="a_kindly_rect" width="240" height="100"/>
 ```
 
@@ -68,13 +71,13 @@ var fvg = require( 'fvg' );
 ```
 
 #### don_svg( input, output )
-Generates a .svg file
+Generates a SVG file
 ```javascript
 fvg.don_svg( 'input.fvg', 'output.svg' );
 ```
 
 #### don_png( input, output, [ratio, optimize])
-Generates a .png file, if unspecified the third argument defaults to [1, true]
+Generates a PNG file, if unspecified the third argument defaults to [1, true]
 ```javascript
 fvg.don_png( 'input.fvg', 'output.png' );
 ```
