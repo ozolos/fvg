@@ -1,6 +1,6 @@
 {
     "name": "fvg",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Faceless Vector Graphics is a little image format that compiles into SVG using node.js",
     "keywords": [
         "fvg",
@@ -14,10 +14,14 @@
         "parse",
         "compile"
     ],
-    "homepage": "https://github.com/caolan/async",
+    "homepage": "http://github.com/ozolos/fvg",
+    "bugs": {
+        "url": "http://github.com/ozolos/fvg/issues",
+        "email": "l@ozolos.com"
+    },
     "license": "MIT",
     "author": "Luke Dubert <l@ozolos.com>",
-    "main": "./lib/fvg.js",
+    "main": "./lib/fvg",
     "repository": {
         "type": "git",
         "url": "http://github.com/ozolos/fvg"

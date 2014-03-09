@@ -2,9 +2,9 @@
 
 ![logo.png](examples/logo/logo.png)
 
-**Faceless Vector Graphics is a little image format that compiles into SVG using node.js** It came about because I needed a method to dynamically generate SVGs from a template through a node-webkit app. While SVGs can use style sheets to change appearance or be created from scratch using [svg.js](http://svgjs.com/) or [snap.svg](http://snapsvg.io/) — I could find nothing that allowed me to start with a template, pass it variables through a .json, and embed (**!**link) SVGs within SVGs.
+**Faceless Vector Graphics is a little image format that compiles into SVG using node.js** It came about because I needed a method to dynamically generate SVGs from a template through a node-webkit app. While SVGs can use style sheets to change appearance or be created from scratch using [svg.js](http://svgjs.com/) or [snap.svg](http://snapsvg.io/) — I could find nothing that allowed me to start with a template, pass it variables through a JSON, and embed (**!**link) SVGs within SVGs.
 
-Inspired by and written in Coffeescript, themed after the Guild of Faceless Men, FVG aims to make SVGs easily programmable without complex scripts. Version 0.1 includes just two/three methods and is built with two functions. (Are they methods and functions? Maybe someone can help me understand what I made.)
+Inspired by and written in Coffeescript, themed after the Guild of Faceless Men, FVG aims to make SVGs easily programmable without complex scripts. Version 0.1 includes just two methods and is compiled with two functions. Plans for future versions include passing parameters, embedding javascript for semantic variables, and SVG generation through [svg.js](http://svgjs.com/) or [snap.svg](http://snapsvg.io/).
 
 ## How to use
 
@@ -17,16 +17,16 @@ $ npm install fvg
 ### 2. Setting it up
 
 #### Rename
-Grab your SVG file and change the extension to `.fvg` (**NOTE** if you're on a Mac, double check to make sure it's not `.fvg.svg`)
+Grab your SVG file and change the extension to `.fvg`. **If** you're on a Mac, double-check to make sure it's not `.fvg.svg`.
 
-#### Getting variables(properties) from JSON 
-Open your FVG file and after the `<svg ... >` tag:
+#### Getting variables from a JSON 
+Open your new FVG file and after the `<svg ... >` tag:
 
 ```javascript
 // input.fvg
 ƒ.link{ "path/to/file.json" }
+// Note the `ƒ` is a florin sign which is `Opt+F` on a Mac
 ```
-(**NOTE** the `ƒ` is a florin sign, `Opt+F` on a Mac)
 
 ```javascript
 // file.json
@@ -36,7 +36,7 @@ Open your FVG file and after the `<svg ... >` tag:
 }
 ```
 
-Referencing that JSON object:
+Referencing a JSON property:
 
 ```xml
 <!-- input.fvg -->
@@ -49,7 +49,7 @@ or
 ```
 
 #### Embedding SVG XML
-I needed to directly embed external SVG elements (not link the SVG using `<image xlink:href="file.svg"/>`) so I created an echo method which grabs the text of the linked file:
+I needed to directly embed external SVG elements (not link using `<image xlink:href="file.svg"/>`) so I created an echo method which grabs the text of the linked file:
 
 ```xml
 <!-- input.fvg -->
