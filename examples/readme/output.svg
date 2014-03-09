@@ -1,0 +1,8 @@
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="300px" height="200px" viewBox="0 0 300 200">
+    <defs>
+        <rect id="a_kindly_rect" width="240" height="100"/>
+    </defs>
+    <rect fill="#819090" width="300" height="200"/>
+    <use x="30" y="50" fill="#465b62" xlink:href="#a_kindly_rect"/>
+    <text x="150" y="110" text-anchor="middle" fill="#fefee2" font-size="24">Valar Morghulis</text>
+</svg>
