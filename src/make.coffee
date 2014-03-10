@@ -4,7 +4,7 @@ path =      '/Users/luke/Documents/Development/git/fvg/'
 
 # Build grammar.pegjs
 
-exec_coffee = 'coffee --compile --output ' + path + 'lib/fvg.js ' + path + 'src/fvg.coffee'
+exec_coffee = 'coffee --compile --output ' + path + 'lib/fvga.js ' + path + 'src/fvg.coffee'
 
 # console.log( exec_coffee )
 
@@ -14,7 +14,7 @@ exec exec_coffee, (error, stdout, stderr) ->
 
 # Build fvg.coffee
 
-exec_pegjs = 'pegjs ' + path + 'src/grammar.pegjs ' + path + 'lib/parse.js'
+exec_pegjs = 'pegjs ' + path + 'src/grammar.pegjs ' + path + 'lib/parsea.js'
 
 # console.log( exec_pegjs )
 

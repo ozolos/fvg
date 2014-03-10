@@ -19,7 +19,7 @@ module.exports =
         async.waterfall [
 
             (callback) ->
-                fs.writeFile '.no_one.js', 'var fs = require( \'fs-extra\' );\njaqen = [];\n', (err) ->
+                fs.writeFile 'no_one.coffee', 'fs = require( \'fs-extra\' )\njaqen = []\n', (err) ->
                     iden = 'A vector image [callback.0]'
                     raven iden, err, false
                     callback null
@@ -31,20 +31,20 @@ module.exports =
                     callback null, parse( code )
 
             , (input, callback) ->
-                fs.appendFile '.no_one.js', input, (err) ->
+                fs.appendFile 'no_one.coffee', input, (err) ->
                     iden = 'A vector image [callback.2]'
                     raven iden, err, false
                     callback null
 
             , (callback) ->
-                fs.appendFile '.no_one.js', 'fs.writeFileSync( \"' + mask + '\", jaqen.join( \"\" ) );', (err) ->
+                fs.appendFile 'no_one.coffee', 'fs.writeFileSync \"' + mask + '\", jaqen.join( \"\" )', (err) ->
                     iden = 'A vector image [callback.3]'
                     raven iden, err, false
                     callback null
 
         ], (err, result) ->
-            exec 'node .no_one.js', (error, stdout, stderr) ->
-                fs.unlinkSync '.no_one.js'
+            exec 'coffee no_one.coffee', (error, stdout, stderr) ->
+                fs.unlinkSync 'no_one.coffee'
                 iden = '\n    A vector image'
                 raven iden, error, true
 
@@ -60,7 +60,7 @@ module.exports =
         async.waterfall [
 
             (callback) ->
-                fs.writeFile '.no_one.js', 'var fs = require( \'fs-extra\' );\njaqen = [];\n', (err) ->
+                fs.writeFile 'no_one.coffee', 'fs = require( \'fs-extra\' )\njaqen = []\n', (err) ->
                     iden = 'A raster image [callback.0]'
                     raven iden, err, false
                     callback null
@@ -72,27 +72,28 @@ module.exports =
                     callback null, parse( code )
 
             , (input, callback) ->
-                fs.appendFile '.no_one.js', input, (err) ->
+                fs.appendFile 'no_one.coffee', input, (err) ->
                     iden = 'A raster image [callback.2]'
                     raven iden, err, false
                     callback null
 
             , (callback) ->
-                fs.appendFile '.no_one.js', 'fs.writeFileSync( \"' + fake + '\", jaqen.join( \"\" ) );', (err) ->
+                fs.appendFile 'no_one.coffee', 'fs.writeFileSync \"' + fake + '\", jaqen.join( \"\" )', (err) ->
                     iden = 'A raster image [callback.3]'
                     raven iden, err, false
                     callback null
 
             , (callback) ->
-                exec 'node .no_one.js', (error, stdout, stderr) ->
+                exec 'coffee no_one.coffee', (error, stdout, stderr) ->
                     iden = 'A raster image [callback.4]'
                     raven iden, error, false
-                    fs.unlinkSync '.no_one.js'
+                    fs.unlinkSync 'no_one.coffee'
                     callback null
 
         ], (err, result) ->
             svgpng fake, mask, opt[0], (err) ->
-                fs.unlinkSync fake
+                # console.log( 'svgpng:', fake, mask, scale, err )
+                # fs.unlinkSync fake
                 if opt[1] or !opt[1]? then execFile pngquant, [
                     "--nofs", "--ext=.png", "--force", mask
                 ], ->
