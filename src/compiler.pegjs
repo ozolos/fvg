@@ -2,7 +2,7 @@ start
     = s:sort+ { return s.join(""); }
 
 sort
-    = t:tag+ { return "jaqen.push '" + t.join("") + "'\n"; }
+    = t:tag+ { return "jaqen.push '" + t.join("\\n") + "'\n"; }
     / link
     / echo
     / fvar

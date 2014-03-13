@@ -5,48 +5,99 @@ fs =        require( 'fs-extra' )
 async =     require( 'async' )
 svgpng =    require( 'svg2png')
 
-parse =     require( './parse' ).parse
+compiler =  require( './compiler' ).parse
+parser =    require( './parser' ).parse
+validator = require( './validator' ).parse
+
+###
+-----------------------
+
+compiler is the ENTIRE process
+
+    1. parse fvg
+        if ƒ.echo{}
+            1.1. parse fvg
+                if ƒ.echo{}, &c
+    2. build svg
+
+catch endless links (only go 12 deep for now?)
+
+------------------------
+###
 
 pngquant =  __dirname + '/../bin/pngquant'
 
 module.exports =
 
+    compile_and_run: (code, file) ->
+
+        # rename this?
+
+        ###
+
+        validate code
+
+            if valid ->
+                compile code
+                run file
+
+            if not valid ->
+                compile_and_run( compile( code ) )
+
+        ###
+
     # 'face' is the input [fvg]
     # 'mask' is the output [svg]
 
-    don_svg: (face, mask) ->
+    don_svg: (face, mask, iden, callback) ->
+
+        if !iden? then iden = [
+            'A vector image [callback.0]'
+            'A vector image [callback.1]'
+            'A vector image [callback.2]'
+            'A vector image [callback.3]'
+            '\n    A vector image'
+        ]
 
         async.waterfall [
 
             (callback) ->
-                fs.writeFile 'no_one.coffee', 'fs = require( \'fs-extra\' )\njaqen = []\n', (err) ->
-                    iden = 'A vector image [callback.0]'
-                    raven iden, err, false
+                fs.writeFile 'no_one.coffee', 'fs = require( \'fs-extra\' )\nfvg = require( \'fvg\' )\njaqen = []\n', (err) ->
+                    raven iden[0], err, false
                     callback null
 
             , (callback) ->
                 fs.readFile face, 'utf-8', (err, code) ->
-                    iden = 'A vector image [callback.1]'
-                    raven iden, err, false
-                    callback null, parse( code )
+                    raven iden[1], err, false
+
+
+
+                    # console.log( validator( compiler ( code ) ) )
+                    ###if validator( compiler ( code ) )
+                        console.log( 'true... WHAT!?!?!' )
+                    else
+                        console.log( 'false...HMMMM?' )###
+                    callback null, compiler( code )
 
             , (input, callback) ->
                 fs.appendFile 'no_one.coffee', input, (err) ->
-                    iden = 'A vector image [callback.2]'
-                    raven iden, err, false
+                    raven iden[2], err, false
                     callback null
 
             , (callback) ->
                 fs.appendFile 'no_one.coffee', 'fs.writeFileSync \"' + mask + '\", jaqen.join( \"\" )', (err) ->
-                    iden = 'A vector image [callback.3]'
-                    raven iden, err, false
+                    raven iden[3], err, false
                     callback null
 
         ], (err, result) ->
             exec 'coffee no_one.coffee', (error, stdout, stderr) ->
-                fs.unlinkSync 'no_one.coffee'
-                iden = '\n    A vector image'
-                raven iden, error, true
+                # fs.unlinkSync 'no_one.coffee'
+                if callback?
+                    callback null
+                    raven iden[4], error, false
+                else
+                    raven iden[4], error, true
+
 
     # 'face' is the input [fvg]
     # 'mask' is the output [png]
@@ -57,52 +108,35 @@ module.exports =
 
         fake = '.' + mask.slice(0, -4) + '.svg'
 
-        async.waterfall [
+        iden = [
+            'A raster image [callback.0]'
+            'A raster image [callback.1]'
+            'A raster image [callback.2]'
+            'A raster image [callback.3]'
+            'A raster image [callback.4]'
+            '\n    A raster image [optimized]'
+            '\n    A raster image [unoptimized]'
+        ]
 
-            (callback) ->
-                fs.writeFile 'no_one.coffee', 'fs = require( \'fs-extra\' )\njaqen = []\n', (err) ->
-                    iden = 'A raster image [callback.0]'
-                    raven iden, err, false
-                    callback null
-
-            , (callback) ->
-                fs.readFile face, 'utf-8', (err, code) ->
-                    iden = 'A raster image [callback.1]'
-                    raven iden, err, false
-                    callback null, parse( code )
-
-            , (input, callback) ->
-                fs.appendFile 'no_one.coffee', input, (err) ->
-                    iden = 'A raster image [callback.2]'
-                    raven iden, err, false
-                    callback null
-
-            , (callback) ->
-                fs.appendFile 'no_one.coffee', 'fs.writeFileSync \"' + fake + '\", jaqen.join( \"\" )', (err) ->
-                    iden = 'A raster image [callback.3]'
-                    raven iden, err, false
-                    callback null
-
-            , (callback) ->
-                exec 'coffee no_one.coffee', (error, stdout, stderr) ->
-                    iden = 'A raster image [callback.4]'
-                    raven iden, error, false
-                    fs.unlinkSync 'no_one.coffee'
-                    callback null
-
-        ], (err, result) ->
+        this.don_svg( face, fake, iden, (err, result) ->
             svgpng fake, mask, opt[0], (err) ->
-                # console.log( 'svgpng:', fake, mask, scale, err )
-                # fs.unlinkSync fake
-                if opt[1] or !opt[1]? then execFile pngquant, [
-                    "--nofs", "--ext=.png", "--force", mask
-                ], ->
-                    iden = '\n    A raster image [optimized]'
-                    raven iden, err, true
+                # console.log( 'svgpng:', fake, mask, iden, opt, err )
+                fs.unlinkSync fake
+                if opt[1] or !opt[1]?
+                    execFile pngquant, [ "--nofs", "--ext=.png", "--force", mask ], -> raven iden[5], err, true
                 else
-                    iden = '\n    A raster image [unoptimized]'
-                    raven iden, err, true
+                    raven iden[6], err, true
+            )
 
-raven = (iden, error, success=false) ->
-    if !error and success then console.log( iden + ': "Valar dohaeris."\n' )
-    if error? then console.log( iden + ': "Valar morghulis."\n\n', error )
+    compile: (code) ->
+        compiler( code )
+
+    parse: (code) ->
+        parser( code )
+
+    validate: (code) ->
+        validator( code )
+
+raven = (i, error, success=false) ->
+    if !error and success then console.log( i + ': "Valar dohaeris."\n' )
+    if error? then console.log( i + ': "Valar morghulis."\n\n', error )
