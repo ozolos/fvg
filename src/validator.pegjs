@@ -3,7 +3,7 @@ start
 
 sort
     = f:f { return false; }
-    / t:tag+ { return true; }
+    / t:tag { return true; }
     / t:text { return true; }
     / a:anything { return false; }
     / ws
