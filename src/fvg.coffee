@@ -28,7 +28,13 @@ catch endless links (only go 12 deep for now?)
 # src (FVG file or direct code)
 # dest (SVG file)
 
+@g_json = null
+@g_code = null
+@g_parsed = null
+
 exports.compile = compile = (src, dest) ->
+
+    # console.log "\n\ninput: \n\n #{src}\n\n"
 
     no_one = [
         'fs = require \'fs-extra\''
@@ -36,7 +42,7 @@ exports.compile = compile = (src, dest) ->
         'jaqen = []'
     ]
 
-    eof = [ 'console.log [ {code : jaqen} , {json : mask} ] ']
+    eof = [ 'console.log [ {code : jaqen} , {json : mask} ]']
 
     async.waterfall [
 
@@ -47,24 +53,37 @@ exports.compile = compile = (src, dest) ->
                     no_one.push parse( code ), eof
                     callback null, no_one.join ';'
             else
-                no_one.push (if json? then "mask = #{ json }" else ''), parse( src ), eof
+                # console.log g_json
+                # console.log 'GAAAAH', @g_json?, @g_json
+                # (if g_json? then "mask = CSON.stringifySync #{ g_json }" else ''),
+                test = CSON.stringifySync @g_json
+                # console.log test
+                fixme = test.replace( /\n/g, " " ).replace( /\"/g, "\'" )
+                # console.log fixme
+                # console.log test.replace /\n/g, " " .replace /["]/g, "\\\'"
+                no_one.push (if g_json? then "mask = " + fixme else ''), parse( src ), eof
+                # console.log no_one.join ';'
                 callback null, no_one.join ';'
 
         , (code, callback) ->
-            console.log '\n\n\nCODE LOG:\n\n' + code + '\n\n\n'
+            fs.writeFileSync 'log.txt', code
+            console.log '\nCODE LOG:\n\n' + code + '\n\n\n'
             exec 'coffee -e \"' + code + '\"', (error, stdout, stderr) ->
-                raven 'executing', error
-                parsed = CSON.parseSync( stdout )
-                code = parsed[0].code
-                json = parsed[1].json
-                callback null, code.join('')
+                raven 'executing', error, stderr
+                @g_parsed = CSON.parseSync( stdout )
+                # console.log @g_parsed
+                @g_code = @g_parsed[0].code
+                @g_json = @g_parsed[1].json
+                callback null, @g_code.join('')
 
     ], (err, result) ->
         if validate result
-            fs.writeFile dest, result, (err) -> raven 'writing', err
+            fs.writeFile dest, result, (err) ->
+                raven 'writing', err
+                console.log 'done'
         else
             compile( result, dest )
-            # console.log 'done'
+            # console.log "done: \n\n #{result}"
 
 ###
     don_svg: (face, mask, iden, callback) ->

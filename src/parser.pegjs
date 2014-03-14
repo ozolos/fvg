@@ -2,7 +2,7 @@ start
     = s:sort+ { return s.join(";"); }
 
 sort
-    = t:tag+ { return "jaqen.push '" + t.join("") + "'"; }
+    = t:tag+ { return "jaqen.push '" + t.join("\\\n") + "'"; }
     / link
     / echo
     / fvar
@@ -24,8 +24,8 @@ char_path
     = ws* [\"\']? c:[A-Za-z0-9_/.]+ [\"\']? ws* { return c.join(""); }
 
 char_xml
-    = br* c:[^<>ƒ\'\"\n\r\t]+ br* { return c.join(""); }
-    / br* c:[\'\"] br* { return "\\" + c; }
+    = br* c:[^<>ƒ\'\"\\\n\r\t]+ br* { return c.join(""); }
+    / br* c:[\'\"\\] br* { return "\\" + c; }
     / br* c:fvar br* { return "'" + c + "jaqen.push '"; }
 
 text
