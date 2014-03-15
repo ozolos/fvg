@@ -1,108 +1,104 @@
-exec =      require( 'child_process' ).exec
-execFile =  require( 'child_process' ).execFile
+{exec}              = require 'child_process'
+{execFile}          = require 'child_process'
 
-fs =        require( 'fs-extra' )
-async =     require( 'async' )
-svgpng =    require( 'svg2png')
+fs                  = require 'fs-extra'
+CSON                = require 'cson'
+async               = require 'async'
+svgpng              = require 'svg2png'
 
-parse =     require( './parse' ).parse
+{parse}             = require './parser'
+{parse : validate}  = require './validator'
 
-pngquant =  __dirname + '/../bin/pngquant'
+#
+# global
+#
 
-module.exports =
+@g_json = null
+@g_code = null
+@g_parsed = null
 
-    # 'face' is the input [fvg]
-    # 'mask' is the output [svg]
+#
+# exports
+#
 
-    don_svg: (face, mask) ->
+# compile ( path or code )
 
-        async.waterfall [
+exports.compile = compile = (src, callback) ->
 
-            (callback) ->
-                fs.writeFile 'no_one.coffee', 'fs = require( \'fs-extra\' )\njaqen = []\n', (err) ->
-                    iden = 'A vector image [callback.0]'
-                    raven iden, err, false
-                    callback null
+    no_one = [
+        'fs = require \'fs-extra\''
+        'u = require \'underscore\''
+        'jaqen = []'
+    ]
+    eof = [ 'console.log [ {code : jaqen} , {json : mask} ]' ]
 
-            , (callback) ->
-                fs.readFile face, 'utf-8', (err, code) ->
-                    iden = 'A vector image [callback.1]'
-                    raven iden, err, false
-                    callback null, parse( code )
+    async.waterfall [
 
-            , (input, callback) ->
-                fs.appendFile 'no_one.coffee', input, (err) ->
-                    iden = 'A vector image [callback.2]'
-                    raven iden, err, false
-                    callback null
+        (callback) ->
+            if src.slice(-4) == '.fvg' or src.slice(-4) == '.svg'
+                fs.readFile src, 'utf-8', (err, code) ->
+                    raven '@compile[readFile]', err
+                    no_one.push parse( code ), eof
+                    callback null, no_one.join ';'
+            else
+                json_0 = CSON.stringifySync @g_json
+                json_1 = json_0.replace( /\n/g, " " ).replace( /\"/g, "\'" )
+                no_one.push (if g_json? then "mask = " + json_1 else ''), parse( src ), eof
+                callback null, no_one.join ';'
 
-            , (callback) ->
-                fs.appendFile 'no_one.coffee', 'fs.writeFileSync \"' + mask + '\", jaqen.join( \"\" )', (err) ->
-                    iden = 'A vector image [callback.3]'
-                    raven iden, err, false
-                    callback null
+        , (code, callback) ->
+            exec 'coffee -e \"' + code + '\"', (error, stdout, stderr) ->
+                raven '@compile[exec]', error
+                @g_parsed = CSON.parseSync( stdout )
+                @g_code = @g_parsed[0].code
+                @g_json = @g_parsed[1].json
+                callback null, @g_code.join('')
 
-        ], (err, result) ->
-            exec 'coffee no_one.coffee', (error, stdout, stderr) ->
-                fs.unlinkSync 'no_one.coffee'
-                iden = '\n    A vector image'
-                raven iden, error, true
+    ], (err, result) ->
+        raven '@compile', err
+        if validate result
+            if callback? then callback null, result else result
+        else
+            compile result, callback
 
-    # 'face' is the input [fvg]
-    # 'mask' is the output [png]
-    # 'fake' is the svg on the way to output [png]
-    # 'opt' is an array [ratio, optimize]
 
-    don_png: (face, mask, opt=[1, true]) ->
+# svg ( path or code, save as )
 
-        fake = '.' + mask.slice(0, -4) + '.svg'
+exports.don_svg = don_svg = (src, dest) ->
 
-        async.waterfall [
+    compile src, (err, result) ->
+        fs.writeFile dest, result, (err) ->
+            raven '@don_svg[writeFile]', err, true
 
-            (callback) ->
-                fs.writeFile 'no_one.coffee', 'fs = require( \'fs-extra\' )\njaqen = []\n', (err) ->
-                    iden = 'A raster image [callback.0]'
-                    raven iden, err, false
-                    callback null
 
-            , (callback) ->
-                fs.readFile face, 'utf-8', (err, code) ->
-                    iden = 'A raster image [callback.1]'
-                    raven iden, err, false
-                    callback null, parse( code )
+# png ( path or code, save as, options = [ ratio, optimize ] )
 
-            , (input, callback) ->
-                fs.appendFile 'no_one.coffee', input, (err) ->
-                    iden = 'A raster image [callback.2]'
-                    raven iden, err, false
-                    callback null
+exports.don_png = don_png = (src, dest, opt = [1, true]) ->
 
-            , (callback) ->
-                fs.appendFile 'no_one.coffee', 'fs.writeFileSync \"' + fake + '\", jaqen.join( \"\" )', (err) ->
-                    iden = 'A raster image [callback.3]'
-                    raven iden, err, false
-                    callback null
+    dest_svg = '.' + dest.slice(0, -4) + '.svg'
+    pngquant =  __dirname + '/../bin/pngquant'
 
-            , (callback) ->
-                exec 'coffee no_one.coffee', (error, stdout, stderr) ->
-                    iden = 'A raster image [callback.4]'
-                    raven iden, error, false
-                    fs.unlinkSync 'no_one.coffee'
-                    callback null
-
-        ], (err, result) ->
-            svgpng fake, mask, opt[0], (err) ->
-                # console.log( 'svgpng:', fake, mask, scale, err )
-                # fs.unlinkSync fake
-                if opt[1] or !opt[1]? then execFile pngquant, [
-                    "--nofs", "--ext=.png", "--force", mask
-                ], ->
-                    iden = '\n    A raster image [optimized]'
-                    raven iden, err, true
+    compile src, (err, result) ->
+        fs.writeFile dest_svg, result, (err) ->
+            raven '@don_png[writeFile]', err
+            svgpng dest_svg, dest, opt[0], (err) ->
+                fs.unlinkSync dest_svg
+                if opt[1] or !opt[1]?
+                    execFile pngquant, [
+                        "--nofs"
+                        "--ext=.png"
+                        "--force"
+                        dest
+                    ], (error, stdout, stderr) ->
+                        raven '@don_png[optimize]', error, true
                 else
-                    iden = '\n    A raster image [unoptimized]'
-                    raven iden, err, true
+                    raven '@don_png[!optimize]', err, true
 
-raven = (iden, error, success=false) ->
-    if !error and success then console.log( iden + ': "Valar dohaeris."\n' )
-    if error? then console.log( iden + ': "Valar morghulis."\n\n', error )
+
+#
+# local
+#
+
+raven = (identity, error, success = false) ->
+    if !error and success then console.log( identity + ': "The Red God is pleased."\n' )
+    if error? then console.log( identity + ': "Valar morghulis."\n\n', error )
