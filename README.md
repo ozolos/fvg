@@ -97,7 +97,7 @@ fvg.don_png( 'input.fvg', 'output.png' );
 ```
 
 #### output.png
-![output.png](examples/readme/output.png)
+![output.png](eg/readme/output.png)
 
 ## How it works
 
