@@ -1,6 +1,6 @@
 {
     "name": "fvg",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "description": "Faceless Vector Graphics is a little image format that compiles into SVG using node.js",
     "keywords": [
         "fvg",
@@ -29,7 +29,9 @@
     "dependencies": {
         "fs-extra": "~0.8.1",
         "async": "~0.2.10",
-        "svg2png": "~1.0.1"
+        "svg2png": "~1.0.1",
+        "coffee-script": "~1.7.1",
+        "cson": "~1.4.5"
     },
     "devDependencies": {
         "coffee-script": "~1.7.1"

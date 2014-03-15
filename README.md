@@ -1,6 +1,6 @@
 # Faceless Vector Graphics
 
-![logo.png](examples/logo/logo.png)
+![logo.png](eg/logo/logo.png)
 
 **Faceless Vector Graphics is a little image format that compiles into SVG using node.js** It came about because I needed a method to dynamically generate SVGs from a template through a node-webkit app. While SVGs can use style sheets to change appearance or be created from scratch using [svg.js](http://svgjs.com/) or [snap.svg](http://snapsvg.io/) — I could find nothing that allowed me to start with a template, pass it variables through a JSON, and embed (**!**link) SVGs within SVGs.
 
