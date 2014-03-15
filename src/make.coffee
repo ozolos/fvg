@@ -2,22 +2,28 @@ exec =      require( 'child_process' ).exec
 
 path =      '/Users/luke/Documents/Development/git/fvg/'
 
-# Build grammar.pegjs
+##
+#
+# coffee
+#
+##
 
-exec_coffee = 'coffee --compile --output ' + path + 'lib/fvga.js ' + path + 'src/fvg.coffee'
-
-# console.log( exec_coffee )
+exec_coffee = 'coffee -o ' + path + 'lib/ -c ' + path + 'src/fvg.coffee'
 
 exec exec_coffee, (error, stdout, stderr) ->
     if !error? then console.log( 'fvg.js built.' )
     else console.log( 'fvg.js has failed to build:\n\n', error )
 
-# Build fvg.coffee
+##
+#
+# peg.js
+#
+##
 
-exec_pegjs = 'pegjs ' + path + 'src/grammar.pegjs ' + path + 'lib/parsea.js'
+make_peg = ( name ) ->
+    exec 'pegjs ' + path + 'src/' + name + '.pegjs ' + path + 'lib/' + name + '.js', (error, stdout, stderr) ->
+    if !error? then console.log( name + '.js built.' )
+    else console.log( name + '.js has failed to build:\n\n', error )
 
-# console.log( exec_pegjs )
-
-exec exec_pegjs, (error, stdout, stderr) ->
-    if !error? then console.log( 'parse.js built.' )
-    else console.log( 'parse.js has failed to build:\n\n', error )
+make_peg( 'parser' )
+make_peg( 'validator' )
