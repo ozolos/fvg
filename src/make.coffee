@@ -22,4 +22,3 @@ make_peg = ( name ) ->
 	else console.log( name + '.js has failed to build:\n\n', error )
 
 make_peg( 'parser' )
-make_peg( 'validator' )

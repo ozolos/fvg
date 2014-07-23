@@ -1,36 +1,40 @@
 start
-	= s:sort+ { return s.join(";"); }
+	= s:sort* { return '[ ' + s.join(', ') + ' ]'; }
 
 sort
-	= t:tag+ { return "jaqen.push '" + t.join("\\\n") + "'"; }
-	/ link
-	/ echo
-	/ fvar
-	/ t:text { return "jaqen.push '" + t + "'"; }
+	= x:xml { return '[ "xml", "' + x + '" ]'; }
+	/ j:json { return '[ "json", "' + j + '" ]'; }
+	/ l:link { return '[ "link", "' + l + '" ]'; }
+	/ r:ref { return '[ "ref", "' + r + '" ]'; }
+	/ f:fvar { return '[ "fvar", "' + f + '" ]'; }
+	/ t:text { return '[ "text", "' + t + '" ]'; }
 
-tag =
-	"<" c:char_xml+ ">" ws* { return "<" + c.join("") + ">"; }
+xml =
+	'<' x:char_xml+ '>' ws* { return '<' + x.join('') + '>'; }
+
+json
+	= '<ƒjson ' j:char_path ' ƒ>' ws* { return j; }
 
 link
-	= "ƒ.link{" c:char_path "}" ws* { return "mask = JSON.parse( fs.readFileSync( '" + c + "', 'utf-8' ) )"; }
+	= '<ƒecho ' l:char_path ' ƒ>' ws* { return l; }
 
-echo
-	= "ƒ.echo{" ws* [\"\']? f:fvar [\"\']? ws* "}" ws* { return "jaqen.push 'ƒ.echo{ \\\''" + f + "jaqen.push '\\\' }'"; }
-	/ "ƒ.echo{" c:char_path "}" ws* { return "jaqen.push fs.readFileSync( '" + c + "' ).toString()"; }
+ref
+	= '<ƒecho ' f:fvar ' ƒ>' ws* { return f; }
 
 fvar
-	= "ƒ{" c:char_path "}" ws* { return ";jaqen.push mask." + c + ";" }
+	= '<ƒ ' f:[^<>ƒ\'\"\\\ ]+ ' ƒ>' { return f.join(''); }
 
 char_path
-	= ws* [\"\']? c:[A-Za-z0-9_/.\[\]]+ [\"\']? ws* { return c.join(""); }
+	= [\"\'] c:[^\'\"]+ [\"\'] { return c.join(''); }
 
 char_xml
-	= br* c:[^<>ƒ\'\"\\\n\r\t]+ br* { return c.join(""); }
-	/ br* c:[\'\"\\] br* { return "\\" + c; }
-	/ br* c:fvar br* { return "'" + c + "jaqen.push '"; }
+	= c:[^<>ƒ\'\"]+ { return c.join(''); }
+	/ '\'' { return '\''; }
+	/ '\"' { return '\''; }
+	/ f:fvar { return '"], [ "fvar", "' + f + '" ], [ "xml", "'; }
 
 text
-	= t:[^<>]+ { return t.join(""); }
+	= t:[^<>]+ { return t.join(''); }
 
 ws
 	= [ \n\r\t]

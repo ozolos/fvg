@@ -19,12 +19,12 @@ $ npm install fvg
 #### Rename
 Grab your SVG file and change the extension to `.fvg`. **If** you're on a Mac, double-check to make sure it's not `.fvg.svg`.
 
-#### Getting variables from a JSON 
+#### Getting variables from a JSON
 Open your new FVG file and after the `<svg ... >` tag:
 
 ```javascript
 // input.fvg
-ƒ.link{ "path/to/file.json" }
+<ƒjson "path/to/file.json" ƒ>
 // Note the `ƒ` is a florin sign which is `Opt+F` on a Mac
 ```
 
@@ -40,12 +40,12 @@ Referencing a JSON property:
 
 ```xml
 <!-- input.fvg -->
-<rect fill="ƒ{a_color}" width="300" height="200"/>`
+<rect fill="<ƒ a_color ƒ>" width="300" height="200"/>`
 ```
 or
 ```xml
 <!-- input.fvg -->
-<text x="150" y="110" text-anchor="middle" fill="#fefee2" font-size="24">ƒ{some_text}</text>
+<text x="150" y="110" text-anchor="middle" fill="#fefee2" font-size="24"><ƒ some_text ƒ></text>
 ```
 
 #### Embedding SVG XML
@@ -54,7 +54,7 @@ I needed to directly embed external SVG elements (not link using `<image xlink:h
 ```xml
 <!-- input.fvg -->
 <defs>
-	ƒ.echo{ "path/to/file.xml" }
+	<ƒecho "path/to/file.xml" ƒ>
 </defs>
 ```
 
@@ -65,7 +65,7 @@ I needed to directly embed external SVG elements (not link using `<image xlink:h
 
 ### 3. Compiling it
 
-#### Inside your node.js file 
+#### Inside your node.js file
 ```javascript
 var fvg = require( 'fvg' );
 ```
@@ -105,4 +105,4 @@ TODO: write this.
 
 ## Notes
 
-This has only been tested on Mac OS X 10.9.2. I'm not experienced enough to maintain this for all platforms or figure out why it doesn't work on your computer. It's just an experiment I did to solve a very specific challenge.
+This has only been tested on Mac OS X 10.9.2 - 10.10. I'm not experienced enough to maintain this for all platforms or figure out why it doesn't work on your computer. It's just an experiment I did to solve a very specific challenge.
